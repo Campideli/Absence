@@ -1,0 +1,38 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "🏁 Absence App (Release Mode - Brave)",
+            "cwd": "apps\\absence_app",
+            "request": "launch",
+            "type": "dart",
+            "deviceId": "chrome",
+            "flutterMode": "release",
+            "args": [
+                "--web-port=3000",
+                "--web-hostname=localhost"
+            ],
+            "env": {
+                "CHROME_EXECUTABLE": "C:\\Program Files\\BraveSoftware\\Brave-Browser\\Application\\brave.exe"
+            }
+        },
+        {
+            "name": "⚡ Absence App (Hot Reload - Brave)",
+            "cwd": "apps\\absence_app",
+            "request": "launch",
+            "type": "dart",
+            "deviceId": "chrome",
+            "flutterMode": "debug",
+            "args": [
+                "--web-port=3001",
+                "--web-hostname=localhost",
+                "--hot",
+                "--dart-define=flutter.inspector.selectButtonIcon=search",
+                "--enable-impeller"
+            ],
+            "env": {
+                "CHROME_EXECUTABLE": "C:\\Program Files\\BraveSoftware\\Brave-Browser\\Application\\brave.exe"
+            }
+        }
+    ]
+}

@@ -1,0 +1,44 @@
+name: absence_monorepo
+repository: https://github.com/Campideli/absence-private
+
+packages:
+  - apps/*
+
+scripts:
+  web:
+    steps:
+      - cd apps/absence_app && flutter run -d web-server --web-port 3000
+    description: Run web app with web-server.
+  
+  api:
+    steps:
+      - cd servers/api_server && dart run bin/api_server.dart
+    description: Run API server.
+
+  android:
+    steps:
+      - cd apps/absence_app && flutter run -d android
+    description: Run Android app.
+
+  clean:
+    run: flutter clean
+    exec:
+      concurrency: 1
+    description: Clean all packages.
+
+  get:
+    steps:
+      - cd apps/absence_app && flutter pub get
+      - flutter pub get
+    description: Get dependencies for all packages.
+
+  kill-port:
+    steps:
+      - netstat -ano | findstr :3000
+      - for /f "tokens=5" %a in ('netstat -ano ^| findstr :3000') do taskkill /PID %a /F
+      - netstat -ano | findstr :8080
+      - for /f "tokens=5" %a in ('netstat -ano ^| findstr :8080') do taskkill /PID %a /F
+    description: Kill processes using both ports 3000 and 8080.
+
+dev_dependencies:
+  melos: ^6.1.0

@@ -1,0 +1,172 @@
+// Regras de segurança do Firestore - VERSÃO MELHORADA
+// Deploy: firebase deploy --only firestore:rules
+// Melhorias: Validação de data, proteção de contadores, email mutável, batch operations
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ============================================================================
+    // HELPER FUNCTIONS - Reutilizáveis em múltiplas regras
+    // ============================================================================
+    
+    /// Verifica se o usuário está autenticado
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    /// Verifica se o usuário autenticado é o dono do recurso
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    /// Valida range de data (mínimo: 2020-01-01, máximo: hoje + 1 dia)
+    function isValidDateRange(dateTimestamp) {
+      let minDate = timestamp.date(2020, 1, 1);
+      let maxDate = timestamp.date(request.time.year(), request.time.month(), request.time.day() + 1);
+      return dateTimestamp >= minDate && dateTimestamp <= maxDate;
+    }
+    
+    /// Valida string não vazia com limite de tamanho
+    function isValidString(value, maxLength) {
+      return value is string && value.size() > 0 && value.size() <= maxLength;
+    }
+    
+    /// Valida número positivo dentro de range
+    function isValidPositiveNumber(value, max) {
+      return value is number && value >= 0 && value <= max;
+    }
+    
+    /// Verifica se um campo numérico foi incrementado/decrementado corretamente
+    /// SECURITY: Previne manipulação direta excessiva
+    /// Permite batch operations (ex: importar múltiplas ausências de uma vez)
+    function isValidIncrement(oldValue, newValue, allowedDelta) {
+      let delta = newValue - oldValue;
+      return delta >= -allowedDelta && delta <= allowedDelta;
+    }
+    
+    // ============================================================================
+    // USERS COLLECTION
+    // ============================================================================
+    
+    match /users/{userId} {
+      // Leitura: apenas o próprio usuário
+      allow read: if isOwner(userId);
+      
+      // Criação: qualquer usuário autenticado pode criar seu próprio perfil
+      allow create: if isAuthenticated() && 
+        isOwner(userId) &&
+        request.resource.data.keys().hasAll(['email', 'createdAt', 'updatedAt']) &&
+        isValidString(request.resource.data.email, 320) && // RFC 5321 max email length
+        request.resource.data.email.matches('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$');
+      
+      // Atualização: apenas o próprio usuário
+      // IMPORTANTE: Email PODE ser alterado (Firebase Auth mantém o UID)
+      // O userId (auth.uid) é imutável - é a chave do documento
+      allow update: if isOwner(userId) &&
+        request.resource.data.createdAt == resource.data.createdAt && // createdAt imutável
+        isValidString(request.resource.data.email, 320) &&
+        request.resource.data.email.matches('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$');
+      
+      // Deleção: apenas o próprio usuário
+      allow delete: if isOwner(userId);
+    }
+    
+    // ============================================================================
+    // SUBJECTS COLLECTION
+    // ============================================================================
+    
+    match /subjects/{subjectId} {
+      // Leitura: apenas o dono
+      allow read: if isAuthenticated() && 
+        isOwner(resource.data.userId);
+      
+      // Criação: validação completa de estrutura e tipos
+      allow create: if isAuthenticated() &&
+        isOwner(request.resource.data.userId) &&
+        request.resource.data.keys().hasAll(['userId', 'name', 'maxAbsences', 'currentAbsences', 'createdAt', 'updatedAt']) &&
+        isValidString(request.resource.data.name, 100) &&
+        isValidPositiveNumber(request.resource.data.maxAbsences, 999) &&
+        isValidPositiveNumber(request.resource.data.currentAbsences, 999) &&
+        request.resource.data.currentAbsences <= request.resource.data.maxAbsences &&
+        request.resource.data.currentAbsences == 0; // Deve iniciar zerado
+      
+      // Atualização: controle granular de mudanças
+      allow update: if isAuthenticated() &&
+        isOwner(resource.data.userId) &&
+        // Campos imutáveis
+        request.resource.data.userId == resource.data.userId &&
+        request.resource.data.createdAt == resource.data.createdAt &&
+        // Validações de campos mutáveis
+        isValidString(request.resource.data.name, 100) &&
+        isValidPositiveNumber(request.resource.data.maxAbsences, 999) &&
+        isValidPositiveNumber(request.resource.data.currentAbsences, 999) &&
+        request.resource.data.currentAbsences <= request.resource.data.maxAbsences &&
+        // SECURITY: Prevenir manipulação excessiva
+        // Permite ±50 para batch operations (ex: importar PDF com múltiplas ausências)
+        isValidIncrement(
+          resource.data.currentAbsences, 
+          request.resource.data.currentAbsences, 
+          50
+        );
+      
+      // Deleção: apenas o dono (integridade referencial validada no backend)
+      allow delete: if isAuthenticated() && 
+        isOwner(resource.data.userId);
+    }
+    
+    // ============================================================================
+    // ABSENCES COLLECTION
+    // ============================================================================
+    
+    match /absences/{absenceId} {
+      // Leitura: apenas o dono
+      allow read: if isAuthenticated() && 
+        isOwner(resource.data.userId);
+      
+      // Criação: validação completa com verificação de ownership da subject
+      allow create: if isAuthenticated() &&
+        isOwner(request.resource.data.userId) &&
+        // Validar estrutura completa
+        request.resource.data.keys().hasAll(['userId', 'subjectId', 'date', 'quantity', 'createdAt', 'updatedAt']) &&
+        isValidString(request.resource.data.subjectId, 100) &&
+        request.resource.data.date is timestamp &&
+        isValidPositiveNumber(request.resource.data.quantity, 50) && // Max 50 faltas por registro (batch import)
+        // Validar reason (opcional)
+        (!request.resource.data.keys().hasAny(['reason']) || 
+         (request.resource.data.reason == null || isValidString(request.resource.data.reason, 500))) &&
+        // SECURITY: Validar range de data (alinhado com backend)
+        isValidDateRange(request.resource.data.date) &&
+        // SECURITY: Verificar que a subject existe e pertence ao usuário
+        exists(/databases/$(database)/documents/subjects/$(request.resource.data.subjectId)) &&
+        get(/databases/$(database)/documents/subjects/$(request.resource.data.subjectId)).data.userId == request.auth.uid;
+      
+      // Atualização: permitir alterar data, quantity e reason (não userId/subjectId)
+      allow update: if isAuthenticated() &&
+        isOwner(resource.data.userId) &&
+        // Campos imutáveis
+        request.resource.data.userId == resource.data.userId &&
+        request.resource.data.subjectId == resource.data.subjectId &&
+        request.resource.data.createdAt == resource.data.createdAt &&
+        // Validações de campos mutáveis
+        request.resource.data.date is timestamp &&
+        isValidDateRange(request.resource.data.date) &&
+        isValidPositiveNumber(request.resource.data.quantity, 50) &&
+        (!request.resource.data.keys().hasAny(['reason']) || 
+         (request.resource.data.reason == null || isValidString(request.resource.data.reason, 500)));
+      
+      // Deleção: apenas o dono
+      allow delete: if isAuthenticated() && 
+        isOwner(resource.data.userId);
+    }
+    
+    // ============================================================================
+    // DEFAULT DENY - Negar acesso a qualquer outra coleção
+    // ============================================================================
+    
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

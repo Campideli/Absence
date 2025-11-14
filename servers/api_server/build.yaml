@@ -1,0 +1,17 @@
+targets:
+  $default:
+    builders:
+      json_serializable:
+        options:
+          # Creates `fromJson` constructor from JSON data
+          create_factory: true
+          # Creates `toJson` method
+          create_to_json: true
+          # Includes `fromJson` factory in `@JsonSerializable` class
+          include_if_null: false
+          # Field rename policy
+          field_rename: none
+          # Creates nullable fields
+          explicit_to_json: true
+          # Make generated classes compatible with generic types
+          generic_argument_factories: true

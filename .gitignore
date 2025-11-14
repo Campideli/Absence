@@ -1,0 +1,120 @@
+# ================================
+# GITIGNORE PRINCIPAL - SECURITY HARDENED
+# ================================
+# IMPORTANTE: Este projeto será Open Source
+# NENHUM dado sensível deve JAMAIS ser commitado
+
+# Environment variables - GLOBAL
+**/.env
+**/.env.*
+!**/.env.example
+!**/.env.template
+.env*
+*.env
+.env
+.env.local
+.env.development
+.env.production
+.env.staging
+.env.test
+
+# Firebase & Google Cloud sensitive files
+**/google-services.json
+**/*-key.json
+**/service-account*.json
+**/serviceAccountKey.json
+**/firebase-adminsdk*.json
+**/firebase-config.js
+**/firebase-config.json
+**/.firebase/
+**/firebase-debug.log
+**/firestore-debug.log
+**/ui-debug.log
+!**/google-services.json.example
+
+# API Keys and secrets
+**/api-keys.json
+**/secrets.json
+**/credentials.json
+**/*-credentials.json
+**/.credentials/
+**/config/secrets/
+
+# Certificates and private keys
+**/*.pem
+**/*.key
+**/*.p12
+**/*.pfx
+**/*.crt
+**/*.csr
+**/*.cer
+**/*.der
+
+# Database files
+**/*.db
+**/*.sqlite
+**/*.sqlite3
+
+# Logs with potential sensitive data
+**/*.log
+**/logs/
+**/crash-reports/
+
+# Temporary and cache files
+**/.DS_Store
+**/Thumbs.db
+**/*.tmp
+**/*.temp
+**/.cache/
+
+# IDE and editor files
+**/.vscode/settings.json
+**/.idea/
+**/*.swp
+**/*.swo
+**/*copilot-instructions*
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Backup files (podem conter dados sensíveis)
+**/*.bak
+**/*.backup
+**/*~
+
+# Keep template and example files
+!**/*.example
+!**/*.template
+!**/example-*
+!**/template-*
+
+# ================================
+# PROJECT SPECIFIC EXCLUDES
+# ================================
+
+# Melos
+.melos_tool/
+.dart_tool/
+pubspec.lock
+
+# Flutter build outputs
+**/build/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+
+# Server runtime files
+**/.rate_limits/
+
+# ================================
+# SECURITY NOTES
+# ================================
+# This gitignore is designed for an Open Source project
+# NO sensitive data should EVER be committed to Git
+# All secrets MUST be in environment variables
+# All API keys MUST be in secure environment files
