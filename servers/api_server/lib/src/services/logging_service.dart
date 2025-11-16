@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:dotenv/dotenv.dart';
 import 'package:logging/logging.dart';
 
 class LoggingService {
@@ -12,7 +11,7 @@ class LoggingService {
   static Future<void> initialize() async {
     if (_initialized) return;
     
-    final env = DotEnv()..load();
+    final env = Platform.environment;
     _environment = env['ENVIRONMENT'] ?? 'development';
     
     // Configurar nível de log baseado no ambiente

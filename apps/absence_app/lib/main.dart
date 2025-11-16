@@ -8,13 +8,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'core/theme/app_themes.dart';
 import 'config/app_config.dart';
-import 'config/env_config.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  await EnvConfig.load();
   await Firebase.initializeApp(options: AppConfig.firebaseOptions);
   // Initialize locale/date formatting data for intl
   await initializeDateFormatting();

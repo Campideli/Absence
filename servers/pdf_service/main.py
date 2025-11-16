@@ -5,10 +5,6 @@ from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import pdfplumber
-from dotenv import load_dotenv
-
-# Carregar variáveis de ambiente
-load_dotenv()
 
 def parse_subjects_list(first_page_text):
     """Extrai a lista de matérias apenas do texto da primeira página."""

@@ -1,6 +1,7 @@
+import 'dart:io';
+
 import 'package:dart_firebase_admin/dart_firebase_admin.dart';
 import 'package:dart_firebase_admin/firestore.dart';
-import 'package:dotenv/dotenv.dart';
 import 'package:logging/logging.dart';
 
 final Logger _logger = Logger('FirebaseService');
@@ -13,15 +14,13 @@ class FirebaseService {
     if (_app != null) return; // Já inicializado
     
     try {
-      // Carregar variáveis de ambiente
-      final env = DotEnv()..load();
-      
-      final projectId = env['FIREBASE_PROJECT_ID'];
-      final privateKey = env['FIREBASE_PRIVATE_KEY'];
-      final clientEmail = env['FIREBASE_CLIENT_EMAIL'];
+      // Ler variáveis de ambiente do sistema
+      final projectId = Platform.environment['FIREBASE_PROJECT_ID'];
+      final privateKey = Platform.environment['FIREBASE_PRIVATE_KEY'];
+      final clientEmail = Platform.environment['FIREBASE_CLIENT_EMAIL'];
       
       if (projectId == null || privateKey == null || clientEmail == null) {
-        throw Exception('Credenciais Firebase incompletas no .env');
+        throw Exception('Credenciais Firebase incompletas nas variáveis de ambiente');
       }
       
       final credential = Credential.fromServiceAccountParams(

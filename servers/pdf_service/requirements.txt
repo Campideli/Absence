@@ -3,4 +3,3 @@ uvicorn
 pdfplumber
 python-multipart
 pandas
-python-dotenv

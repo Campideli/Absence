@@ -1,8 +1,8 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:api_server/src/services/logging_service.dart';
-import 'package:dotenv/dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:logging/logging.dart';
 
@@ -15,14 +15,14 @@ class AuthService {
   static String? _firebaseWebApiKey;
   
   static Future<void> initialize() async {
-    final env = DotEnv()..load();
+    final env = Platform.environment;
     _projectId = env['FIREBASE_PROJECT_ID'];
     _firebasePrivateKey = env['FIREBASE_PRIVATE_KEY'];
     _firebaseClientEmail = env['FIREBASE_CLIENT_EMAIL'];
     _firebaseWebApiKey = env['FIREBASE_WEB_API_KEY'];
     
     if (_projectId == null || _firebasePrivateKey == null || _firebaseClientEmail == null) {
-      throw Exception('Credenciais Firebase incompletas no .env');
+      throw Exception('Credenciais Firebase incompletas nas variáveis de ambiente');
     }
     
     _logger.info('AuthService inicializado para projeto');

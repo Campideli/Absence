@@ -13,7 +13,6 @@ dependencies:
   firebase_app_check: ^0.3.1+4
   flutter:
     sdk: flutter
-  flutter_dotenv: ^5.1.0
   google_sign_in: ^7.1.1
   provider: ^6.1.2
   shared_preferences: ^2.5.3
@@ -36,5 +35,4 @@ flutter:
   
   assets:
     - assets/images/
-    - .env
-    - .env.example
+

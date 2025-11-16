@@ -1,97 +1,88 @@
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-
+/// Environment configuration using compile-time constants.
+/// Values are injected via --dart-define during build.
 class EnvConfig {
   const EnvConfig._();
   
-  static Future<void> load() async {
-    await dotenv.load(fileName: '.env');
-  }
-  
-  /// Obtém um valor do arquivo .env
-  static String? getValue(String key) {
-    return dotenv.env[key];
-  }
-  
   // ==================== API CONFIGURATION ====================
   
-  static String get apiBaseUrl => 
-      dotenv.env['API_BASE_URL'] ?? 'http://localhost:8080';
-      
-  static String get appEnvironment => 
-      dotenv.env['ENVIRONMENT'] ?? 'development';
+  static const String apiBaseUrl = String.fromEnvironment(
+    'API_BASE_URL',
+    defaultValue: 'http://localhost:8080',
+  );
+  
+  static const String environment = String.fromEnvironment(
+    'ENVIRONMENT',
+    defaultValue: 'development',
+  );
   
   // ==================== FIREBASE WEB ====================
   
-  static String get firebaseWebApiKey => 
-      dotenv.env['FIREBASE_WEB_API_KEY'] ?? '';
+  static const String firebaseWebApiKey = String.fromEnvironment(
+    'FIREBASE_WEB_API_KEY',
+    defaultValue: '',
+  );
       
-  static String get firebaseWebAppId => 
-      dotenv.env['FIREBASE_WEB_APP_ID'] ?? '';
+  static const String firebaseWebAppId = String.fromEnvironment(
+    'FIREBASE_WEB_APP_ID',
+    defaultValue: '',
+  );
       
-  static String get firebaseWebMessagingSenderId => 
-      dotenv.env['FIREBASE_WEB_MESSAGING_SENDER_ID'] ?? '';
+  static const String firebaseWebMessagingSenderId = String.fromEnvironment(
+    'FIREBASE_WEB_MESSAGING_SENDER_ID',
+    defaultValue: '',
+  );
       
-  static String get firebaseWebProjectId => 
-      dotenv.env['FIREBASE_WEB_PROJECT_ID'] ?? '';
+  static const String firebaseWebProjectId = String.fromEnvironment(
+    'FIREBASE_WEB_PROJECT_ID',
+    defaultValue: '',
+  );
       
-  static String get firebaseWebAuthDomain => 
-      dotenv.env['FIREBASE_WEB_AUTH_DOMAIN'] ?? '';
+  static const String firebaseWebAuthDomain = String.fromEnvironment(
+    'FIREBASE_WEB_AUTH_DOMAIN',
+    defaultValue: '',
+  );
       
-  static String get firebaseWebStorageBucket => 
-      dotenv.env['FIREBASE_WEB_STORAGE_BUCKET'] ?? '';
+  static const String firebaseWebStorageBucket = String.fromEnvironment(
+    'FIREBASE_WEB_STORAGE_BUCKET',
+    defaultValue: '',
+  );
       
-  static String get firebaseWebMeasurementId => 
-      dotenv.env['FIREBASE_WEB_MEASUREMENT_ID'] ?? '';
+  static const String firebaseWebMeasurementId = String.fromEnvironment(
+    'FIREBASE_WEB_MEASUREMENT_ID',
+    defaultValue: '',
+  );
   
   // ==================== FIREBASE ANDROID ====================
   
-  static String get firebaseAndroidApiKey => 
-      dotenv.env['FIREBASE_ANDROID_API_KEY'] ?? '';
+  static const String firebaseAndroidApiKey = String.fromEnvironment(
+    'FIREBASE_ANDROID_API_KEY',
+    defaultValue: '',
+  );
       
-  static String get firebaseAndroidAppId => 
-      dotenv.env['FIREBASE_ANDROID_APP_ID'] ?? '';
+  static const String firebaseAndroidAppId = String.fromEnvironment(
+    'FIREBASE_ANDROID_APP_ID',
+    defaultValue: '',
+  );
       
-  static String get firebaseAndroidMessagingSenderId => 
-      dotenv.env['FIREBASE_ANDROID_MESSAGING_SENDER_ID'] ?? '';
+  static const String firebaseAndroidMessagingSenderId = String.fromEnvironment(
+    'FIREBASE_ANDROID_MESSAGING_SENDER_ID',
+    defaultValue: '',
+  );
       
-  static String get firebaseAndroidProjectId => 
-      dotenv.env['FIREBASE_ANDROID_PROJECT_ID'] ?? '';
+  static const String firebaseAndroidProjectId = String.fromEnvironment(
+    'FIREBASE_ANDROID_PROJECT_ID',
+    defaultValue: '',
+  );
       
-  static String get firebaseAndroidStorageBucket => 
-      dotenv.env['FIREBASE_ANDROID_STORAGE_BUCKET'] ?? '';
+  static const String firebaseAndroidStorageBucket = String.fromEnvironment(
+    'FIREBASE_ANDROID_STORAGE_BUCKET',
+    defaultValue: '',
+  );
   
   // ==================== GOOGLE SIGN-IN ====================
   
-  static String get googleWebClientId => 
-      dotenv.env['GOOGLE_WEB_CLIENT_ID'] ?? '';
-  
-  // ==================== CONFIGURAÇÕES GERAIS ====================
-  
-  static String get environment => 
-      dotenv.env['ENVIRONMENT'] ?? 'production';
-      
-  static bool get debugMode => 
-      dotenv.env['DEBUG_MODE']?.toLowerCase() == 'true';
-  
-  // ==================== VALIDAÇÕES ====================
-  
-  static bool get isConfigured {
-    return firebaseWebApiKey.isNotEmpty &&
-           firebaseWebAppId.isNotEmpty &&
-           firebaseAndroidApiKey.isNotEmpty &&
-           firebaseAndroidAppId.isNotEmpty &&
-           googleWebClientId.isNotEmpty;
-  }
-  
-  static List<String> get missingVariables {
-    final missing = <String>[];
-    
-    if (firebaseWebApiKey.isEmpty) missing.add('FIREBASE_WEB_API_KEY');
-    if (firebaseWebAppId.isEmpty) missing.add('FIREBASE_WEB_APP_ID');
-    if (firebaseAndroidApiKey.isEmpty) missing.add('FIREBASE_ANDROID_API_KEY');
-    if (firebaseAndroidAppId.isEmpty) missing.add('FIREBASE_ANDROID_APP_ID');
-    if (googleWebClientId.isEmpty) missing.add('GOOGLE_WEB_CLIENT_ID');
-    
-    return missing;
-  }
+  static const String googleWebClientId = String.fromEnvironment(
+    'GOOGLE_WEB_CLIENT_ID',
+    defaultValue: '',
+  );
 }

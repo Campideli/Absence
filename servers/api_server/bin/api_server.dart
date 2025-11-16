@@ -1,21 +1,17 @@
 import 'dart:io';
 import 'package:api_server/api_server.dart';
-import 'package:dotenv/dotenv.dart';
 import 'package:logging/logging.dart';
 
 void main() async {
   try {
-    // Load environment variables first
-    final env = DotEnv(includePlatformEnvironment: true)..load();
-    
     // Initialize logging service
     await LoggingService.initialize();
     
     final logger = Logger('APIServer');
     logger.info('Iniciando servidor API...');
     
-    // Initialize configuration
-    final config = ServerConfig.fromEnvironment(env);
+    // Initialize configuration from environment variables
+    final config = ServerConfig.fromEnvironment();
     
     // Initialize Firebase and Auth
     await FirebaseService.initialize();

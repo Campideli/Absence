@@ -48,6 +48,9 @@
 **/*.crt
 **/*.csr
 **/*.cer
+
+# Deployment scripts (contêm configurações específicas)
+**/scripts/setup-and-deploy.sh
 **/*.der
 
 # Database files
