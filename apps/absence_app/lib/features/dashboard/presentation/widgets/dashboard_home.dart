@@ -53,14 +53,15 @@ class _DashboardData {
     }
     
     // Compara conteúdo das listas verificando IDs e valores relevantes
-    // Para subjects: verifica se algum currentAbsences, absencePercentage ou status mudou
+    // Para subjects: verifica se algum currentAbsences, absencePercentage, status ou classSchedules mudou
     for (var i = 0; i < subjects.length; i++) {
       final s1 = subjects[i];
       final s2 = other.subjects[i];
       if (s1.id != s2.id ||
           s1.currentAbsences != s2.currentAbsences ||
           s1.absencePercentage != s2.absencePercentage ||
-          s1.status != s2.status) {
+          s1.status != s2.status ||
+          s1.classSchedules.length != s2.classSchedules.length) {
         return false;
       }
     }

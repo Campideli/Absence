@@ -9,6 +9,7 @@ dependencies:
   crypto: ^3.0.3
   dart_firebase_admin: 0.4.0
   dotenv: ^4.2.0
+  googleapis_auth: ^1.6.0
   http: ^1.1.0
   json_annotation: ^4.9.0
   logging: ^1.2.0

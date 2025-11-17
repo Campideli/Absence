@@ -279,10 +279,14 @@ class WeekdayScheduleSelector extends StatelessWidget {
                               width: 1,
                             ),
                           ),
-                          child: Icon(
-                            Icons.add,
-                            size: 20,
-                            color: Colors.white,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                '+',
+                                style: AppTextStyles.badgeText(context).copyWith(color: Colors.white),
+                              ),
+                            ],
                           ),
                         ),
                       ),

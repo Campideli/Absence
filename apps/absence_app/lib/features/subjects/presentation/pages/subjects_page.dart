@@ -23,17 +23,17 @@ class _SubjectsPageState extends State<SubjectsPage> {
   void _showImportScheduleDialog(BuildContext context) async {
     final result = await showDialog<List<SubjectModel>>(
       context: context,
-      builder: (context) => const ImportScheduleDialog(),
+      builder: (dialogContext) => const ImportScheduleDialog(),
     );
-    
+
     if (result != null && result.isNotEmpty && mounted) {
-      final provider = context.read<SubjectProvider>();
-      
+      final provider = this.context.read<SubjectProvider>();
+
       // Show loading while saving
       showDialog(
-        context: context,
+        context: this.context,
         barrierDismissible: false,
-        builder: (context) => const Center(
+        builder: (dialogContext) => const Center(
           child: Card(
             child: Padding(
               padding: EdgeInsets.all(24),
@@ -59,10 +59,10 @@ class _SubjectsPageState extends State<SubjectsPage> {
             classSchedules: subject.classSchedules,
           );
         }
-        
+
         if (mounted) {
-          Navigator.of(context).pop(); // Close loading dialog
-          ScaffoldMessenger.of(context).showSnackBar(
+          Navigator.of(this.context).pop(); // Close loading dialog
+          ScaffoldMessenger.of(this.context).showSnackBar(
             SnackBar(
               content: Text('${result.length} matérias importadas com sucesso!'),
               backgroundColor: Colors.green,
@@ -71,8 +71,8 @@ class _SubjectsPageState extends State<SubjectsPage> {
         }
       } catch (e) {
         if (mounted) {
-          Navigator.of(context).pop(); // Close loading dialog
-          ScaffoldMessenger.of(context).showSnackBar(
+          Navigator.of(this.context).pop(); // Close loading dialog
+          ScaffoldMessenger.of(this.context).showSnackBar(
             SnackBar(
               content: Text('Erro ao salvar matérias: $e'),
               backgroundColor: Colors.red,

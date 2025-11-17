@@ -7,7 +7,7 @@
 class DateValidator {
   // Configuração de ranges (alinhado com Firestore rules)
   static final DateTime minAllowedDate = DateTime.utc(2020, 1, 1);
-  static final DateTime Function() maxAllowedDate = () => 
+  static DateTime maxAllowedDate() =>
     DateTime.now().toUtc().add(const Duration(days: 1));
   
   /// Valida se uma data está dentro do range permitido

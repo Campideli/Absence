@@ -5,12 +5,14 @@ class DialogHeader extends StatelessWidget {
   final IconData icon;
   final String title;
   final String? subtitle;
+  final VoidCallback? onClose;
 
   const DialogHeader({
     super.key,
     required this.icon,
     required this.title,
     this.subtitle,
+    this.onClose,
   });
 
   @override
@@ -47,6 +49,12 @@ class DialogHeader extends StatelessWidget {
             ],
           ),
         ),
+        if (onClose != null)
+          IconButton(
+            icon: const Icon(Icons.close, color: Colors.white, size: 22),
+            tooltip: 'Fechar',
+            onPressed: onClose,
+          ),
       ],
     );
   }

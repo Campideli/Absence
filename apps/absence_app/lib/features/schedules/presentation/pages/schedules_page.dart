@@ -25,6 +25,16 @@ class _SchedulesPageData {
     if (other is! _SchedulesPageData) return false;
     if (isLoading != other.isLoading || hasError != other.hasError || error != other.error) return false;
     if (subjects.length != other.subjects.length) return false;
+    
+    // Compara se os classSchedules de cada matéria mudaram
+    for (var i = 0; i < subjects.length; i++) {
+      final s1 = subjects[i];
+      final s2 = other.subjects[i];
+      if (s1.id != s2.id || s1.classSchedules.length != s2.classSchedules.length) {
+        return false;
+      }
+    }
+    
     return true;
   }
 

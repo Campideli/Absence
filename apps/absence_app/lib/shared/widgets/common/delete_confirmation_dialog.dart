@@ -53,6 +53,7 @@ class _DeleteConfirmationDialogState extends State<DeleteConfirmationDialog> {
             DialogHeader(
               icon: Icons.warning_amber_rounded,
               title: widget.title,
+              onClose: () => Navigator.of(context).pop(false),
             ),
             
             const SizedBox(height: 16),

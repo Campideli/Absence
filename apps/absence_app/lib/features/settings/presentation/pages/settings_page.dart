@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:absence_app/features/auth/presentation/providers/auth_provider.dart' as app_auth;
+import 'package:url_launcher/url_launcher.dart';
 
 /// Tela de configurações principal
 class SettingsPage extends StatelessWidget {
@@ -257,6 +258,95 @@ class SettingsPage extends StatelessWidget {
               ),
             ],
           ),
+        ),
+      ),
+      bottomNavigationBar: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        decoration: BoxDecoration(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          border: Border(
+            top: BorderSide(
+              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.15),
+              width: 1,
+            ),
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Desenvolvido por Fernando Campideli',
+              style: AppTextStyles.bodyText(context).copyWith(
+                fontSize: 12,
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                InkWell(
+                  onTap: () async {
+                    final uri = Uri.parse('https://github.com/Campideli/Absence');
+                    if (await canLaunchUrl(uri)) {
+                      await launchUrl(uri, mode: LaunchMode.externalApplication);
+                    }
+                  },
+                  borderRadius: BorderRadius.circular(8),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      children: [
+                        Image.asset(
+                          'assets/images/github.png',
+                          width: 20,
+                          height: 20,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          'GitHub',
+                          style: AppTextStyles.bodyText(context).copyWith(
+                            fontSize: 13,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 24),
+                InkWell(
+                  onTap: () async {
+                    final uri = Uri.parse('https://www.linkedin.com/in/fernando-campideli/');
+                    if (await canLaunchUrl(uri)) {
+                      await launchUrl(uri, mode: LaunchMode.externalApplication);
+                    }
+                  },
+                  borderRadius: BorderRadius.circular(8),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      children: [
+                        Image.asset(
+                          'assets/images/linkedin.png',
+                          width: 20,
+                          height: 20,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          'LinkedIn',
+                          style: AppTextStyles.bodyText(context).copyWith(
+                            fontSize: 13,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

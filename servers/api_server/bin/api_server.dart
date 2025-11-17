@@ -14,7 +14,7 @@ Map<String, String> _loadEnvironment() {
     // Merge Platform.environment with .env, giving priority to .env
     return {
       ...Platform.environment,
-      for (var key in [
+      for (final key in [
         'ENVIRONMENT',
         'PORT',
         'HOST',

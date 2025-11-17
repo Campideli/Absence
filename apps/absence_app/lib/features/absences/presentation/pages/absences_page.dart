@@ -42,7 +42,7 @@ class _AbsencePageData {
       return false;
     }
     
-    // Compara conteúdo: verifica se algum currentAbsences, absencePercentage ou status mudou
+    // Compara conteúdo: verifica se algum currentAbsences, absencePercentage, status ou classSchedules mudou
     for (var i = 0; i < subjects.length; i++) {
       final s1 = subjects[i];
       final s2 = other.subjects[i];
@@ -50,7 +50,8 @@ class _AbsencePageData {
           s1.currentAbsences != s2.currentAbsences ||
           s1.absencePercentage != s2.absencePercentage ||
           s1.status != s2.status ||
-          s1.name != s2.name) {
+          s1.name != s2.name ||
+          s1.classSchedules.length != s2.classSchedules.length) {
         return false;
       }
     }
