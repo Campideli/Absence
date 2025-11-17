@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:io' as io;
 
+import 'package:googleapis_auth/auth_io.dart';
 import 'package:http/http.dart' as http;
 import 'package:logging/logging.dart';
 import 'package:shelf/shelf.dart';
@@ -11,6 +13,41 @@ class ScheduleController {
   });
   final String pdfServiceUrl;
   final Logger _logger = Logger('ScheduleController');
+  
+  /// Obtém um token de autenticação para invocar Cloud Run services
+  Future<String?> _getIdToken(String audience) async {
+    try {
+      // Em produção no Cloud Run, usa a service account padrão
+      final isProduction = io.Platform.environment['ENVIRONMENT'] == 'production';
+      
+      if (!isProduction) {
+        // Em desenvolvimento, não precisa de autenticação
+        return null;
+      }
+      
+      // Obter credenciais da application default (funciona no Cloud Run)
+      final client = await clientViaMetadataServer();
+      
+      // Fazer requisição ao metadata server para obter ID token
+      final metadataUrl = 'http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/identity?audience=$audience';
+      final response = await client.get(
+        Uri.parse(metadataUrl),
+        headers: {'Metadata-Flavor': 'Google'},
+      );
+      
+      client.close();
+      
+      if (response.statusCode == 200) {
+        return response.body;
+      }
+      
+      _logger.warning('Failed to get ID token: ${response.statusCode}');
+      return null;
+    } catch (e) {
+      _logger.warning('Error getting ID token: $e');
+      return null;
+    }
+  }
 
   Future<Response> importSchedule(Request request) async {
     try {
@@ -65,6 +102,12 @@ class ScheduleController {
         'POST',
         Uri.parse('$pdfServiceUrl/extract-schedule'),
       );
+      
+      // Adicionar token de autenticação para Cloud Run em produção
+      final idToken = await _getIdToken(pdfServiceUrl);
+      if (idToken != null) {
+        multipartRequest.headers['Authorization'] = 'Bearer $idToken';
+      }
       
       multipartRequest.files.add(
         http.MultipartFile.fromBytes(
