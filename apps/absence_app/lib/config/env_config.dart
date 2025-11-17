@@ -85,4 +85,26 @@ class EnvConfig {
     'GOOGLE_WEB_CLIENT_ID',
     defaultValue: '',
   );
+  
+  // ==================== CONFIGURATION VALIDATION ====================
+  
+  static bool get debugMode => environment == 'development';
+  
+  static bool get isConfigured {
+    return missingVariables.isEmpty;
+  }
+  
+  static List<String> get missingVariables {
+    final missing = <String>[];
+    
+    // Validar variáveis obrigatórias de Firebase Web
+    if (firebaseWebApiKey.isEmpty) missing.add('FIREBASE_WEB_API_KEY');
+    if (firebaseWebAppId.isEmpty) missing.add('FIREBASE_WEB_APP_ID');
+    if (firebaseWebProjectId.isEmpty) missing.add('FIREBASE_WEB_PROJECT_ID');
+    
+    // Validar Google Sign-In
+    if (googleWebClientId.isEmpty) missing.add('GOOGLE_WEB_CLIENT_ID');
+    
+    return missing;
+  }
 }
