@@ -106,10 +106,10 @@ async def extract_schedule(file: UploadFile = File(...)):
     try:
         with pdfplumber.open(io.BytesIO(content)) as pdf:
             if not pdf.pages:
-                return JSONResponse(status_code=400, content={"error": "PDF sem páginas."})
+                return JSONResponse(content={"error": "PDF sem páginas."}, status_code=400)
             first_page_text = pdf.pages[0].extract_text(x_tolerance=2) or ""
             subjects = parse_subjects_list(first_page_text)
         result = list(subjects.values())
-        return JSONResponse({"subjects": result})
+        return {"subjects": result}
     except Exception as e:
-        return JSONResponse(status_code=500, content={"error": "Falha ao processar o PDF.", "details": str(e)})
+        return JSONResponse(content={"error": "Falha ao processar o PDF.", "details": str(e)}, status_code=500)

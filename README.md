@@ -11,7 +11,7 @@ Um sistema completo para gerenciamento de frequência acadêmica, ajudando estud
 [![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)](https://firebase.google.com)
 [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
-[🌐 **Acessar Aplicação**](https://SEU-LINK-DE-PRODUCAO-AQUI) • [📖 Documentação](#documentação) • [🚀 Início Rápido](#início-rápido)
+[🌐 **Acessar Aplicação**](https://absence-917f1.web.app/)
 
 ---
 
@@ -26,6 +26,29 @@ Um sistema completo para gerenciamento de frequência acadêmica, ajudando estud
 - 📅 **Gestão de horários** com visualização de calendário semanal
 - 📄 **Importação de PDF** para facilitar o cadastro de matérias
 - 🔐 **Autenticação segura** com Firebase e Google Sign-In
+
+---
+
+## 📸 Screenshots
+
+<div align="center">
+
+### Login
+![Login](docs/screenshots/login.png)
+
+### Dashboard
+![Dashboard](docs/screenshots/dashboard.png)
+
+### Gestão de Matérias
+![Matérias](docs/screenshots/subjects.png)
+
+### Controle de Faltas
+![Faltas](docs/screenshots/absences.png)
+
+### Visualização de Horário
+![Horários](docs/screenshots/schedule.png)
+
+</div>
 
 ---
 
@@ -293,34 +316,6 @@ melos get          # Instala dependências de todos os pacotes
 melos clean        # Limpa build artifacts
 melos kill-port    # Finaliza processos nas portas 3000 e 8080
 ```
-
----
-
-## 📸 Screenshots
-
-<div align="center">
-
-### Login
-![Login](docs/screenshots/login.png)
-*Página de Login*
-
-### Dashboard
-![Dashboard](docs/screenshots/dashboard.png)
-*Visão geral com estatísticas*
-
-### Gestão de Matérias
-![Matérias](docs/screenshots/subjects.png)
-*Lista de matérias*
-
-### Controle de Faltas
-![Faltas](docs/screenshots/absences.png)
-*Visualização de faltas por matéria*
-
-### Visualização de Horário
-![Horários](docs/screenshots/schedule.png)
-*Página com horário de aulas*
-
-</div>
 
 ---
 

@@ -14,8 +14,8 @@ class AuthService {
   static String? _firebaseClientEmail;
   static String? _firebaseWebApiKey;
   
-  static Future<void> initialize() async {
-    final env = Platform.environment;
+  static Future<void> initialize([Map<String, String>? envVars]) async {
+    final env = envVars ?? Platform.environment;
     _projectId = env['FIREBASE_PROJECT_ID'];
     _firebasePrivateKey = env['FIREBASE_PRIVATE_KEY'];
     _firebaseClientEmail = env['FIREBASE_CLIENT_EMAIL'];

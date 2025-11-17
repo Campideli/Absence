@@ -10,14 +10,15 @@ class FirebaseService {
   static FirebaseAdminApp? _app;
   static Firestore? _firestore;
   
-  static Future<void> initialize() async {
+  static Future<void> initialize([Map<String, String>? envVars]) async {
     if (_app != null) return; // Já inicializado
     
     try {
-      // Ler variáveis de ambiente do sistema
-      final projectId = Platform.environment['FIREBASE_PROJECT_ID'];
-      final privateKey = Platform.environment['FIREBASE_PRIVATE_KEY'];
-      final clientEmail = Platform.environment['FIREBASE_CLIENT_EMAIL'];
+      // Ler variáveis de ambiente
+      final env = envVars ?? Platform.environment;
+      final projectId = env['FIREBASE_PROJECT_ID'];
+      final privateKey = env['FIREBASE_PRIVATE_KEY'];
+      final clientEmail = env['FIREBASE_CLIENT_EMAIL'];
       
       if (projectId == null || privateKey == null || clientEmail == null) {
         throw Exception('Credenciais Firebase incompletas nas variáveis de ambiente');

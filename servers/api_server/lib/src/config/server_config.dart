@@ -14,8 +14,8 @@ class ServerConfig {
     this.allowedOrigins = const ['*'],
   });
 
-  factory ServerConfig.fromEnvironment() {
-    final env = Platform.environment;
+  factory ServerConfig.fromEnvironment([Map<String, String>? envVars]) {
+    final env = envVars ?? Platform.environment;
     
     // Parse allowed origins and clean them up
     final origins = env['ALLOWED_ORIGINS']?.split(',')
