@@ -287,9 +287,11 @@ class _ImportScheduleDialogState extends State<ImportScheduleDialog> {
                       ],
                     ),
                     const SectionSpacing(),
-                    // Lista de matérias importadas
+                    // Lista de matérias importadas responsiva
                     Container(
-                      constraints: const BoxConstraints(maxHeight: 400),
+                      constraints: BoxConstraints(
+                        maxHeight: MediaQuery.of(context).size.height * 0.45,
+                      ),
                       decoration: BoxDecoration(
                         border: Border.all(
                           color: colorScheme.outline.withValues(alpha: 0.3),
@@ -316,9 +318,7 @@ class _ImportScheduleDialogState extends State<ImportScheduleDialog> {
                                 LayoutBuilder(
                                   builder: (context, constraints) {
                                     final isWide = constraints.maxWidth > 400;
-                                    
                                     if (isWide) {
-                                      // Wide layout: icon/text and button on same row
                                       return Row(
                                         children: [
                                           Icon(Icons.check_circle, color: colorScheme.primary),
@@ -344,7 +344,6 @@ class _ImportScheduleDialogState extends State<ImportScheduleDialog> {
                                         ],
                                       );
                                     } else {
-                                      // Narrow layout: stack vertically
                                       return Column(
                                         mainAxisSize: MainAxisSize.min,
                                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -384,7 +383,6 @@ class _ImportScheduleDialogState extends State<ImportScheduleDialog> {
                           ),
                           Flexible(
                             child: ListView.separated(
-                              shrinkWrap: true,
                               padding: const EdgeInsets.all(DesignConstants.md),
                               itemCount: _filteredSubjects.length,
                               separatorBuilder: (context, index) => const SizedBox(height: DesignConstants.sm),

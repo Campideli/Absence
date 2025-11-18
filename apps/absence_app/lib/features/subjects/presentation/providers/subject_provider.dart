@@ -11,6 +11,24 @@ enum LoadingState {
 }
 
 class SubjectProvider extends ChangeNotifier {
+    /// Adiciona uma matéria localmente (sem backend)
+    SubjectModel addSubjectLocally({
+      required String name,
+      required int maxAbsences,
+      List<ClassScheduleModel> classSchedules = const [],
+    }) {
+      final subject = SubjectModel.create(
+        id: 'local_${DateTime.now().millisecondsSinceEpoch}',
+        userId: '',
+        name: name.trim(),
+        maxAbsences: maxAbsences,
+        classSchedules: classSchedules,
+      );
+      _subjects.add(subject);
+      _sortSubjects();
+      notifyListeners();
+      return subject;
+    }
   final SubjectRepository _repository = SubjectRepositoryImpl();
   
   List<SubjectModel> _subjects = [];
@@ -111,19 +129,34 @@ class SubjectProvider extends ChangeNotifier {
         throw Exception('Número máximo de faltas não pode exceder 100');
       }
 
-      final subject = SubjectModel.create(
-        id: '', // ID será ignorado e substituído pelo backend
-        userId: '', // Será preenchido pelo backend
-        name: name.trim(),
+      // Adição otimista
+      final localSubject = addSubjectLocally(
+        name: name,
         maxAbsences: maxAbsences,
         classSchedules: classSchedules,
       );
 
-      final createdSubject = await _repository.createSubject(subject);
-      _subjects.add(createdSubject);
-      _sortSubjects();
-      notifyListeners();
-      
+      // Chama backend em segundo plano
+      Future.microtask(() async {
+        try {
+          final subject = SubjectModel.create(
+            id: '',
+            userId: '',
+            name: name.trim(),
+            maxAbsences: maxAbsences,
+            classSchedules: classSchedules,
+          );
+          final createdSubject = await _repository.createSubject(subject);
+          // Remove local e adiciona real
+          _subjects.removeWhere((s) => s.id == localSubject.id);
+          _subjects.add(createdSubject);
+          _sortSubjects();
+          notifyListeners();
+        } catch (e) {
+          // Erros corrigidos na próxima sincronização
+        }
+      });
+
       return true;
     } catch (e) {
       _setError(e.toString());
@@ -152,19 +185,35 @@ class SubjectProvider extends ChangeNotifier {
         );
       }
 
-      final updatedSubject = await _repository.updateSubject(subject);
+      // Edição otimista: atualiza localmente antes do backend
       final index = _subjects.indexWhere((s) => s.id == subject.id);
-      
       if (index != -1) {
-        _subjects[index] = updatedSubject;
+        _subjects[index] = subject;
         _sortSubjects();
         notifyListeners();
       }
-      
       if (_selectedSubject?.id == subject.id) {
-        _selectedSubject = updatedSubject;
+        _selectedSubject = subject;
       }
-      
+
+      // Chama backend em segundo plano
+      Future.microtask(() async {
+        try {
+          final updatedSubject = await _repository.updateSubject(subject);
+          final idx = _subjects.indexWhere((s) => s.id == updatedSubject.id);
+          if (idx != -1) {
+            _subjects[idx] = updatedSubject;
+            _sortSubjects();
+            notifyListeners();
+          }
+          if (_selectedSubject?.id == updatedSubject.id) {
+            _selectedSubject = updatedSubject;
+          }
+        } catch (e) {
+          // Erros corrigidos na próxima sincronização
+        }
+      });
+
       return true;
     } catch (e) {
       _setError(e.toString());
@@ -177,14 +226,23 @@ class SubjectProvider extends ChangeNotifier {
     _clearError();
     
     try {
-      await _repository.deleteSubject(id);
+      // Remoção otimista: remove localmente antes do backend
       _subjects.removeWhere((subject) => subject.id == id);
       notifyListeners();
-      
+
       if (_selectedSubject?.id == id) {
         _selectedSubject = null;
       }
-      
+
+      // Chama backend em segundo plano
+      Future.microtask(() async {
+        try {
+          await _repository.deleteSubject(id);
+        } catch (e) {
+          // Erros corrigidos na próxima sincronização
+        }
+      });
+
       return true;
     } catch (e) {
       _setError(e.toString());

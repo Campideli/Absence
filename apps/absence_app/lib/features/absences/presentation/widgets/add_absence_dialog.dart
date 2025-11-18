@@ -53,34 +53,26 @@ class _AddAbsenceDialogState extends State<AddAbsenceDialog> {
 
   Future<void> _loadMonthAbsences() async {
     setState(() => _isLoadingAbsences = true);
-    
+
     try {
       final provider = context.read<AbsenceProvider>();
-      
-      // OTIMIZAÇÃO: Se já temos todas as faltas do usuário, usa filtro local
+
+      // Se já temos faltas carregadas localmente, usa o cache
+      List absences;
       if (provider.hasSubjectAbsencesLoaded(widget.subject.id)) {
-        // Dados já estão carregados! Filtra localmente sem chamada ao backend
-        final subjectAbsences = provider.getSubjectAbsencesLocally(widget.subject.id);
-        
-        _absencesPerDay.clear();
-        for (final absence in subjectAbsences) {
-          final dateKey = AppDateUtils.formatDateKey(absence.date);
-          _absencesPerDay[dateKey] = (_absencesPerDay[dateKey] ?? 0) + absence.quantity;
-        }
-        
-        if (mounted) setState(() => _isLoadingAbsences = false);
-        return; // Retorna instantaneamente!
+        absences = provider.getSubjectAbsencesLocally(widget.subject.id);
+      } else {
+        // Caso contrário, sincroniza com backend
+        await provider.loadSubjectAbsences(widget.subject.id);
+        absences = provider.subjectAbsences;
       }
-      
-      // Caso contrário, carrega do backend
-      await provider.loadSubjectAbsences(widget.subject.id);
-      
+
       _absencesPerDay.clear();
-      for (final absence in provider.subjectAbsences) {
+      for (final absence in absences) {
         final dateKey = AppDateUtils.formatDateKey(absence.date);
-        _absencesPerDay[dateKey] = (_absencesPerDay[dateKey] ?? 0) + absence.quantity;
+        _absencesPerDay[dateKey] = ((_absencesPerDay[dateKey] ?? 0) + absence.quantity).toInt();
       }
-      
+
       if (mounted) setState(() => _isLoadingAbsences = false);
     } catch (e) {
       if (mounted) setState(() => _isLoadingAbsences = false);
@@ -127,73 +119,49 @@ class _AddAbsenceDialogState extends State<AddAbsenceDialog> {
       return;
     }
 
-    setState(() => _isLoading = true);
-
-    try {
+    setState(() {
+      _isLoading = true;
+      final absenceProvider = context.read<AbsenceProvider>();
       final reason = _reasonController.text.trim().isEmpty
           ? null
           : _reasonController.text.trim();
-
-      final absenceProvider = context.read<AbsenceProvider>();
-      final subjectProvider = context.read<SubjectProvider>();
-      
-      // Criar uma falta para cada dia selecionado
-      int successCount = 0;
-      int failCount = 0;
-      
+      int totalAbsences = 0;
       for (final date in _selectedDates) {
-        final success = await absenceProvider.createAbsence(
+        absenceProvider.addAbsenceLocally(
           subjectId: widget.subject.id,
           date: date,
           quantity: quantity,
           reason: reason,
-          // Atualização otimista - não precisa recarregar tudo
-          onAbsenceCreated: (subjectId, qty) {
-            subjectProvider.incrementAbsenceCount(subjectId, qty);
-          },
         );
-        
-        if (success) {
-          successCount++;
-        } else {
-          failCount++;
-        }
+        final dateKey = AppDateUtils.formatDateKey(date);
+        _absencesPerDay[dateKey] = (_absencesPerDay[dateKey] ?? 0) + quantity;
+        totalAbsences += quantity;
       }
+      // Atualiza o contador da matéria uma única vez
+      final subjectProvider = context.read<SubjectProvider>();
+      subjectProvider.incrementAbsenceCount(widget.subject.id, totalAbsences);
+    });
 
-      if (mounted) {
-        // Fecha o dialog primeiro
-        Navigator.of(context).pop(true);
-        
-        // Aguarda um pouco antes de mostrar snackbar
-        // para dar tempo das animações acontecerem
-        await Future.delayed(const Duration(milliseconds: 200));
-        
-        if (!mounted) return;
-        
-        // Mensagem de sucesso com contagem
-        final totalAbsences = successCount * quantity;
-        final daysText = successCount == 1 ? 'dia' : 'dias';
-        
-        if (failCount == 0) {
-          SnackBarHelper.showSuccess(
-            context,
-            '$totalAbsences falta(s) registrada(s) em $successCount $daysText',
-          );
-        } else {
-          SnackBarHelper.showWarning(
-            context,
-            '$successCount $daysText registrado(s), $failCount falharam',
-          );
-        }
+    // Chama backend em segundo plano
+    Future.microtask(() async {
+      final absenceProvider = context.read<AbsenceProvider>();
+      final reason = _reasonController.text.trim().isEmpty
+          ? null
+          : _reasonController.text.trim();
+      for (final date in _selectedDates) {
+        await absenceProvider.createAbsence(
+          subjectId: widget.subject.id,
+          date: date,
+          quantity: quantity,
+          reason: reason,
+        );
       }
-    } catch (e) {
-      if (mounted) {
-        SnackBarHelper.showError(context, 'Erro ao registrar faltas: $e');
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+    });
+
+    if (mounted) {
+      Navigator.of(context).pop(true);
+      await Future.delayed(const Duration(milliseconds: 200));
+      setState(() => _isLoading = false);
     }
   }
 
